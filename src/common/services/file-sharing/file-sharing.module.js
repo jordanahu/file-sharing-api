@@ -5,6 +5,4 @@ import { FileSharingService } from "./file-sharing.service";
     providers:[FileSharingService],
     exports:[FileSharingService]
 })
-export class FileSharingModule{
-
-}
+export class FileSharingModule{}
