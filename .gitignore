@@ -17,6 +17,8 @@
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 
+savedFolder
+
 # Gradle:
 .idea/**/gradle.xml
 .idea/**/libraries

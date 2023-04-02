@@ -1,5 +1,5 @@
 import crypto from "crypto";
-
+import path from "path"
 
 
 
@@ -17,7 +17,17 @@ function generateKeys(){
 }
 
 
+function getSavedFolderPathDetails(fileName, folderName){
+        const dirLevel = 3;
+        const dirLevelArr = Array.from({length:dirLevel}, (_)=>"..");
+        const dirPath = path.join(__dirname, ...dirLevelArr, folderName);
+        const absFilePath = path.join(__dirname, ...dirLevelArr, folderName,fileName );
+        const filesDbPath = path.join(__dirname,...dirLevelArr, folderName, "data.json")
+      
+        return {absFilePath, dirPath, filesDbPath}
+}
 
 export {
-    generateKeys
+    generateKeys,
+    getSavedFolderPathDetails
 }
