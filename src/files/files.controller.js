@@ -2,7 +2,7 @@ import { Controller,Bind,Req, Dependencies, BadRequestException,Get,Body,UseInte
 import { FileSharingService } from '../common/services/file-sharing/file-sharing.service';
 import {FileInterceptor} from "@nestjs/platform-express"
 require('reflect-metadata');
-
+import {getUserIP} from "../common/utils"
 
 
 @Controller("files")
@@ -16,11 +16,11 @@ export class FilesController{
 
     @Get("*")
     async downloadFile( @Req() req ) {
-        
+        const ipAddress = getUserIP(req);
         
         try{
              let publicKey = req.originalUrl.split("/").slice(2).join("/")
-            return await this.#fileSharingService.downloadFile(publicKey);
+            return await this.#fileSharingService.downloadFile(publicKey, ipAddress);
           }catch(err){
             throw new BadRequestException(err.message)
         }

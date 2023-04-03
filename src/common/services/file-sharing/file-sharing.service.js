@@ -80,8 +80,59 @@ export class FileSharingService {
         }
     }
 
-    async downloadFile(userPublicKey) {
+    async downloadFile(userPublicKey, ipAddress) {
         try {
+         
+
+            let filePath = await this.getFilePath(userPublicKey);
+            console.log("file path is, ", filePath)
+            let usersDataDbPath = path.join(filePath, "..","..", "usersData");
+            console.log("db path is, ", usersDataDbPath)
+            let filesDbPath = path.join(usersDataDbPath, "data.json")
+
+            //  let fileExists = existsSync(userDataDbPath);
+            let dataDbExists = existsSync(usersDataDbPath);
+            if (!dataDbExists) {
+                await promisify(mkdir)(usersDataDbPath, {
+                    recursive: true,
+                });
+               
+                await fs.writeFile(filesDbPath, JSON.stringify([]));
+            }
+
+         
+
+            // Read existing data from file
+
+            let data = await fs.readFile(filesDbPath);
+            // let json = JSON.parse(data);
+            let json = data.length > 0 ? JSON.parse(data) : [];
+            // Check if private key already exists in JSON array
+            
+            let index = json.findIndex((item) => item["ipAddress"] == ipAddress);
+            console.log("ip adress is, ", typeof ipAddress)
+            if (index === -1) {
+                // If private key not found, append new object to JSON array
+                let downloadLimit = this.#configService.get("DOWNLOAD_LIMIT")
+                json.push({
+                   
+                    ipAddress,
+                    downloadLimit
+                });
+            } else {
+                if(json[index]["downloadLimit"] <= 0){
+                    throw new Error("download limit reached!")
+                }                   
+                json[index]["downloadLimit"] = json[index]["downloadLimit"] - 1;
+                console.log("new address is, ", json[index]["ipAddress"])
+                
+            }
+
+            // Write updated data back to file
+            await fs.writeFile(filesDbPath, JSON.stringify(json, null, 2));
+          
+
+           
             return await this.getFileStream(userPublicKey);
         } catch (error) {
             throw error;
@@ -94,17 +145,18 @@ export class FileSharingService {
             let filePath = await this.getFilePath(userPrivateKey);
             let fileName = path.basename(filePath);
 
-            let { filesDbPath } = getSavedFolderPathDetails(fileName, folderName);
+            let { filesDbPath, dirPath } = getSavedFolderPathDetails(fileName, folderName);
 
-            return new Promise((resolve, reject) => {
-                unlink(filePath, async (error) => {
-                    if (error) return reject(error);
+            let filesLength = (await fs.readdir(dirPath)).length;
+            if(filesLength.length == 1){
+                await fs.rmdir(filesDbPath)
+            }else{
+                await fs.unlink(filePath );
+                await this.deleteFromJSON(filesDbPath, userPrivateKey);
 
-                    await this.deleteFromJSON(filesDbPath, userPrivateKey);
-
-                    resolve('success');
-                });
-            });
+            }
+            
+            return "success"
         } catch (error) {
             throw error;
         }
@@ -164,7 +216,7 @@ export class FileSharingService {
             // let json = JSON.parse(data);
             let json = data.length > 0 ? JSON.parse(data) : [];
             // Check if private key already exists in JSON array
-            console.log('the jason is,', json);
+            
             let index = json.findIndex((item) => item.privateKey === privateKey);
 
             if (index === -1) {
