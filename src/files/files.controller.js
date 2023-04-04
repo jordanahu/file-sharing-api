@@ -14,8 +14,10 @@ export class FilesController{
         this.#fileSharingService = fileSharingService
     }
 
+    //handle all routes starting with /files/*
     @Get("*")
     async downloadFile( @Req() req ) {
+        //get ip address
         const ipAddress = getUserIP(req);
         
         try{
@@ -26,6 +28,7 @@ export class FilesController{
         }
     }
 
+    //hadle all file upload request
     @Post()
     @UseInterceptors(FileInterceptor("file"))
     @Bind(UploadedFile())
@@ -37,6 +40,7 @@ export class FilesController{
         }
     }
 
+    //hadle all file deletion request
     @Delete("*")
      async deleteFile(@Req() req){
          try{

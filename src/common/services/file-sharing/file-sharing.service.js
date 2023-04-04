@@ -7,7 +7,6 @@ import {
     existsSync,
     createWriteStream,
     createReadStream,
-    unlink,
     writeFile,
     mkdir,
 } from 'fs';
@@ -80,14 +79,13 @@ export class FileSharingService {
         }
     }
 
+    //download file by returning a file stream and tracking the download limit
     async downloadFile(userPublicKey, ipAddress) {
         try {
          
 
             let filePath = await this.getFilePath(userPublicKey);
-            console.log("file path is, ", filePath)
             let usersDataDbPath = path.join(filePath, "..","..", "usersData");
-            console.log("db path is, ", usersDataDbPath)
             let filesDbPath = path.join(usersDataDbPath, "data.json")
 
             //  let fileExists = existsSync(userDataDbPath);
@@ -110,7 +108,6 @@ export class FileSharingService {
             // Check if private key already exists in JSON array
             
             let index = json.findIndex((item) => item["ipAddress"] == ipAddress);
-            console.log("ip adress is, ", typeof ipAddress)
             if (index === -1) {
                 // If private key not found, append new object to JSON array
                 let downloadLimit = this.#configService.get("DOWNLOAD_LIMIT")
@@ -124,7 +121,6 @@ export class FileSharingService {
                     throw new Error("download limit reached!")
                 }                   
                 json[index]["downloadLimit"] = json[index]["downloadLimit"] - 1;
-                console.log("new address is, ", json[index]["ipAddress"])
                 
             }
 
@@ -139,6 +135,7 @@ export class FileSharingService {
         }
     }
 
+    //deletion of file based on userPrivateKey
     async deleteFile(userPrivateKey) {
         try {
             const folderName = this.#configService.get('FOLDER');
@@ -185,7 +182,6 @@ export class FileSharingService {
 
     //Validates user's user private key and returns a boolean
     async isValidPrivateKey(userPrivateKey) {
-        console.log('the key is, ', userPrivateKey);
 
         const folderName = this.#configService.get('FOLDER');
         let filePath = await this.getFilePath(userPrivateKey);
@@ -283,6 +279,7 @@ export class FileSharingService {
         };
     }
 
+    //get file path based on either private or public key
     async getFilePath(key) {
         const folderName = this.#configService.get('FOLDER');
 

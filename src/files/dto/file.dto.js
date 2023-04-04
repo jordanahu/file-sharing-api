@@ -1,6 +1,7 @@
 
 
 
+//a file dto(data transfer object) to easily create a file object
 export class FileDto{
     privateKey;
     publicKey;

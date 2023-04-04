@@ -1,6 +1,8 @@
 import {Injectable, Dependencies,HttpMethod,BadRequestException,UnauthorizedException } from "@nestjs/common";
 import { FileSharingService } from "../services/file-sharing/file-sharing.service";
 
+
+//Middle ware to intercept incoming requests and validate the api keys 
 @Injectable()
 @Dependencies(FileSharingService)
 export class ValidateKey {
@@ -13,29 +15,27 @@ export class ValidateKey {
     async use(req, _, next){
 
         try{
+            //get the api key
             let key = req.params[0].trim();
             if(!key){
                 throw new BadRequestException("must provide a key")
             }
             
-
+            //validation of api key
             let passedValidation = false;
             switch(req.method){
                 case "GET":
                     passedValidation = await this.#fileSharingService.isValidPublicKey(key) 
                     break;
                 case "DELETE":
-                    console.log("method is", req.method)
                     passedValidation = await this.#fileSharingService.isValidPrivateKey(key)
                     break;
-                default:
-                    console.log("hmm is", passedValidation)
                     
             }
 
             
             if(passedValidation) {
-                console.log("calleddd")
+                
                 next();
             }else{
                 throw new UnauthorizedException("Unauthorized", {description:"You gave a wrong key"})

@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 
 
 
-
+//configuration of the config module to enable access to environment variables
 @Module({
     imports:[ConfigModule.forRoot()],
     providers:[FileSharingService],

@@ -17,7 +17,9 @@ function generateKeys(){
 }
 
 
+//get all details of the folder where files are saved
 function getSavedFolderPathDetails(fileName, folderName){
+        //directory level to move up
         const dirLevel = 3;
         const dirLevelArr = Array.from({length:dirLevel}, (_)=>"..");
         const dirPath = path.join(__dirname, ...dirLevelArr, folderName);
@@ -40,8 +42,8 @@ const readdir = promisify(fs.readdir);
 async function cleanInactiveFiles(dirPath, inactiveMinutes) {
   // Check if the directory path is valid
   if (!fs.existsSync(dirPath) || !fs.statSync(dirPath).isDirectory()) {
-    // If not, throw an error
-    throw new Error('Invalid directory path');
+    // If not, short circuit(end)
+    return;
   }
 
   // Get the current timestamp in milliseconds
