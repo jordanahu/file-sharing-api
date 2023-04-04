@@ -1,14 +1,16 @@
 
 
 
+//a file dto(data transfer object) to easily create a file object
 export class FileDto{
-    //readonly attributes to maintain integrity
-    #privateKey;
-    #publicKey;
-    #file;
-    constuctor(privateKey, publicKey, file){
-        this.#privateKey = privateKey;
-        this.#publicKey = publicKey;
-        this.#file = file;
+    privateKey;
+    publicKey;
+    fileName;
+    filePath;
+    constructor(fileName, publicKey, privateKey, filePath){
+        this.privateKey = privateKey;
+        this.publicKey = publicKey;
+        this.fileName = fileName;
+        this.filePath = filePath;
     }
 }
